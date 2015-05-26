@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Make sure only root can run our script
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
+# Add sources
+echo "deb http://www.rabbitmq.com/debian/ testing main" > /etc/apt/sources.list.d/rabbitmq-debian-testing.list
+wget https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+sudo apt-key add rabbitmq-signing-key-public.asc
+rm rabbitmq-signing-key-public.asc
+
+echo "deb http://apt.vandenbrand.org/debian testing main" > /etc/apt/sources.list.d/vandenbrand-debian-testing.list
+wget http://apt.vandenbrand.org/apt.vandenbrand.org.gpg.key
+sudo apt-key add apt.vandenbrand.org.gpg.key
+rm apt.vandenbrand.org.gpg.key
+
+sudo apt-get update -q
+
+# Install packages
+sudo apt-get install rabbitmq-server rabbitmq-cli-consumer -y
+sudo rabbitmq-plugins enable rabbitmq_management
+sudo service rabbitmq-server restart
